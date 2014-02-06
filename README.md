@@ -1,4 +1,4 @@
-# Docker container for GNU Guile (Scheme)
+# Docker container for GNU Guile
 
 This is a docker container for running Scheme code under GNU Guile.
 
