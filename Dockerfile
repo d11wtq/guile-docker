@@ -2,32 +2,28 @@
 #
 # This container provides an environment for running Guile Scheme.
 
-FROM       ubuntu
+FROM       d11wtq/ubuntu
 MAINTAINER Chris Corbyn
 
-RUN apt-get install -qq -y \
-  curl             \
-  build-essential  \
-  man pkg-config   \
-  libreadline-dev  \
+ENV LD_LIBRARY_PATH /usr/local/lib
+
+RUN sudo apt-get update -qq -y
+RUN sudo apt-get install -qq -y \
+  pkg-config       \
   libltdl7-dev     \
   libgmp-dev       \
   libunistring-dev \
   libffi-dev       \
   libgc-dev
 
-RUN groupadd admin
-RUN useradd -m -s /bin/bash -G admin guile
-RUN echo guile:guile | chpasswd
+ADD http://ftp.gnu.org/gnu/guile/guile-2.0.9.tar.gz /tmp/
 
-RUN cd /tmp; curl -sO ftp://ftp.gnu.org/gnu/guile/guile-2.0.9.tar.gz
-RUN cd /tmp; tar xvzf guile-*.tar.gz; rm guile-*.tar.gz
-RUN cd /tmp/guile-*; ./configure && make && make install
-RUN cd /tmp; rm -rf guile-*
+RUN cd /tmp;                           \
+    sudo chown default: *.tar.gz;      \
+    tar xvzf *.tar.gz; rm -f *.tar.gz; \
+    cd guile*;                         \
+    ./configure --prefix=/usr/local;   \
+    make && make install;              \
+    cd; rm -rf /tmp/guile*
 
-RUN su guile -c 'echo -e "(use-modules (ice-9 readline))\n(activate-readline)" > ~/.guile'
-
-ENV     LD_LIBRARY_PATH /usr/local/lib
-ENV     HOME /home/guile
-WORKDIR /home/guile
-USER    guile
+RUN echo "(use-modules (ice-9 readline))\n(activate-readline)" > ~/.guile
